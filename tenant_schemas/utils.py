@@ -114,12 +114,12 @@ def django_is_in_test_mode():
 
 
 def schema_exists(schema_name, db=None):
+    from django.db import connection, connections
     if has_multiple_db() and not db:
         raise MultipleDBError("DB not specified")
-    if not db:
-        cursor = connection.cursor()
-    else:
-        cursor = connections[db].cursor()
+    if db:
+        connection = connections[db]
+    cursor = connection.cursor()
 
     # check if this schema already exists in the db
     sql = 'SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_namespace WHERE LOWER(nspname) = LOWER(%s))'

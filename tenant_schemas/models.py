@@ -66,7 +66,7 @@ class TenantMixin(models.Model):
     def save(self, verbosity=1, *args, **kwargs):
         is_new = self.pk is None
         db = self.get_db(**kwargs)
-    
+        from django.db import connection
         if db:
             connection = connections[db]
 
@@ -83,7 +83,7 @@ class TenantMixin(models.Model):
         if is_new and self.auto_create_schema:
             try:
                 self.create_schema(check_if_exists=True, verbosity=verbosity, db=db)
-            except:
+            except Exception as e:
                 # We failed creating the tenant, delete what we created and
                 # re-raise the exception
                 self.delete(force_drop=True, db=db)
@@ -96,6 +96,7 @@ class TenantMixin(models.Model):
         Deletes this row. Drops the tenant's schema if the attribute
         auto_drop_schema set to True.
         """
+        from django.db import connection
         db = self.get_db(**kwargs)
         if db:
             connection = connections[db]
@@ -120,22 +121,21 @@ class TenantMixin(models.Model):
         """
 
         # safety check
+        from django.db import connection, connections
         _check_schema_name(self.schema_name)
         if db:
-            connection = connections[db].cursor()
+            connection = connections[db]
         cursor = connection.cursor()
 
-        if check_if_exists and schema_exists(self.schema_name):
+        if check_if_exists and schema_exists(self.schema_name, db=db):
             return False
 
         # create the schema
         cursor.execute('CREATE SCHEMA %s' % self.schema_name)
-
         if sync_schema:
             call_command('migrate_schemas',
                          schema_name=self.schema_name,
                          interactive=False,
                          verbosity=verbosity,
-                         db=db)
-
+                         database=db)
         connection.set_schema_to_public()

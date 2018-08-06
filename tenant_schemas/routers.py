@@ -9,12 +9,6 @@ class TenantSyncRouter(object):
     depending if we are syncing the shared apps or the tenant apps.
     """
 
-    def db_for_read(self, model, **hints):
-        print settings.DATABASE_ROUTERS
-        if len(settings.DATABASES) > 1:
-            pass
-
-
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         # the imports below need to be done here else django <1.5 goes crazy
