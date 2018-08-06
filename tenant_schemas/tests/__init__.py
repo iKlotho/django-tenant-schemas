@@ -1,4 +1,4 @@
-from .template_loader import *
+from tenant_schemas.template_loaders import *
 from .test_cache import *
 from .test_log import *
 from .test_routes import *
