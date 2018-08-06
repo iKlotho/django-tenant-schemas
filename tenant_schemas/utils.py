@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 
 from django.conf import settings
-from django.db import connection
+from django.db import connection, connections
 
 try:
     from django.apps import apps, AppConfig
@@ -12,8 +12,28 @@ except ImportError:
 from django.core import mail
 
 
+class MultipleDBError(Exception):
+    """Raised when muliple DB's are defined in settings but not specified in usage"""
+    pass    
+
+
+def has_multiple_db():
+    """
+    checks if multile databases are defined in settings
+    """
+    if len(settings.DATABASES) > 1:
+        return True
+    return False
+
+
+
 @contextmanager
-def schema_context(schema_name):
+def schema_context(schema_name, db=None):
+    if has_multiple_db() and not db:
+        raise MultipleDBError("DB not specified")
+    if db:
+        connection = connections[db]
+
     previous_tenant = connection.tenant
     try:
         connection.set_schema(schema_name)
@@ -26,7 +46,12 @@ def schema_context(schema_name):
 
 
 @contextmanager
-def tenant_context(tenant):
+def tenant_context(tenant, db=None):
+    if has_multiple_db() and not db:
+        raise MultipleDBError("DB not specified")
+    if db:
+        connection = connections[db]
+
     previous_tenant = connection.tenant
     try:
         connection.set_tenant(tenant)
@@ -88,8 +113,13 @@ def django_is_in_test_mode():
     return hasattr(mail, 'outbox')
 
 
-def schema_exists(schema_name):
-    cursor = connection.cursor()
+def schema_exists(schema_name, db=None):
+    if has_multiple_db() and not db:
+        raise MultipleDBError("DB not specified")
+    if not db:
+        cursor = connection.cursor()
+    else:
+        cursor = connections[db].cursor()
 
     # check if this schema already exists in the db
     sql = 'SELECT EXISTS(SELECT 1 FROM pg_catalog.pg_namespace WHERE LOWER(nspname) = LOWER(%s))'
@@ -116,3 +146,5 @@ def app_labels(apps_list):
     if AppConfig is None:
         return [app.split('.')[-1] for app in apps_list]
     return [AppConfig.create(app).label for app in apps_list]
+
+
