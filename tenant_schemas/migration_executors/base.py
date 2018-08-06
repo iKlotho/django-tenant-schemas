@@ -59,7 +59,6 @@ class MigrationExecutor(object):
 
     def run_migrations(self, tenants):
         public_schema_name = get_public_schema_name()
-        print tenants
         if public_schema_name in tenants:
             run_migrations(self.args, self.options, self.codename, public_schema_name)
             tenants.pop(tenants.index(public_schema_name))

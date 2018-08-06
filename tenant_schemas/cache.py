@@ -8,6 +8,7 @@ def make_key(key, key_prefix, version, db=None):
     Constructs the key used by all other methods. Prepends the tenant
     `schema_name` and `key_prefix'.
     """
+    from django.db import connection, connections
     if db:
         connection = connections[db]
     return '%s:%s:%s:%s' % (connection.schema_name, key_prefix, version, key)

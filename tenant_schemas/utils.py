@@ -29,6 +29,7 @@ def has_multiple_db():
 
 @contextmanager
 def schema_context(schema_name, db=None):
+    from django.db import connection, connections
     if has_multiple_db() and not db:
         raise MultipleDBError("DB not specified")
     if db:
@@ -47,6 +48,7 @@ def schema_context(schema_name, db=None):
 
 @contextmanager
 def tenant_context(tenant, db=None):
+    from django.db import connection, connections
     if has_multiple_db() and not db:
         raise MultipleDBError("DB not specified")
     if db:
