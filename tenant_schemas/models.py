@@ -133,9 +133,15 @@ class TenantMixin(models.Model):
         # create the schema
         cursor.execute('CREATE SCHEMA %s' % self.schema_name)
         if sync_schema:
-            call_command('migrate_schemas',
-                         schema_name=self.schema_name,
-                         interactive=False,
-                         verbosity=verbosity,
-                         database=db)
+            if db:
+                call_command('migrate_schemas',
+                             schema_name=self.schema_name,
+                             interactive=False,
+                             verbosity=verbosity,
+                             database=db)
+            else:
+                call_command('migrate_schemas',
+                             schema_name=self.schema_name,
+                             interactive=False,
+                             verbosity=verbosity)
         connection.set_schema_to_public()
