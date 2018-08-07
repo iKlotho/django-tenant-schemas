@@ -102,8 +102,6 @@ def best_practice(app_configs, **kwargs):
             id="tenant_schemas.W003"
         ))
 
-    if has_multiple_db() and read_router_not_implemented()
-
 
 
     return errors
