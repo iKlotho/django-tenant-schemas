@@ -31,7 +31,7 @@ def db_read_router_implemented():
     checks if read router is implemented
     """
     for router in settings.DATABASE_ROUTERS:
-        if hasttr('db_for_read', router):
+        if hasattr('db_for_read', router):
             return True
         return False
 
@@ -41,7 +41,7 @@ def db_write_router_implemented():
     checks if read router is implemented
     """
     for router in settings.DATABASE_ROUTERS:
-        if hasttr('db_for_write', router):
+        if hasattr('db_for_write', router):
             return True
         return False
 
