@@ -26,6 +26,25 @@ def has_multiple_db():
     return False
 
 
+def db_read_router_implemented():
+    """
+    checks if read router is implemented
+    """
+    for router in settings.DATABASE_ROUTERS:
+        if hasttr('db_for_read', router):
+            return True
+        return False
+
+
+def db_write_router_implemented():
+    """
+    checks if read router is implemented
+    """
+    for router in settings.DATABASE_ROUTERS:
+        if hasttr('db_for_write', router):
+            return True
+        return False
+
 
 @contextmanager
 def schema_context(schema_name, db=None):

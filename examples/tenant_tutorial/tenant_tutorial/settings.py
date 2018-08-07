@@ -88,6 +88,7 @@ SECRET_KEY = 'as-%*_93v=r5*p_7cu8-%o6b&x^g+q$#*e*fl)k)x0-t=%q0qa'
 
 DATABASE_ROUTERS = (
     'tenant_schemas.routers.TenantSyncRouter',
+    # 'tenant_tutorial.routers.ExampleTenantSyncRouter'
 )
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
@@ -152,7 +153,7 @@ TENANT_APPS = (
     'django.contrib.auth',
 )
 
-TENANT_MODEL = "customers.Client"  # app.Model
+# TENANT_MODEL = "customers.Client"  # app.Model
 
 DEFAULT_FILE_STORAGE = 'tenant_schemas.storage.TenantFileSystemStorage'
 

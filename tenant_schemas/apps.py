@@ -3,11 +3,12 @@ from django.conf import settings
 from django.core.checks import Critical, Error, Warning, register
 from django.core.files.storage import default_storage
 from tenant_schemas.storage import TenantStorageMixin
-from tenant_schemas.utils import get_public_schema_name, get_tenant_model
+from tenant_schemas.utils import get_public_schema_name, get_tenant_model,has_multiple_db
 
 
 class TenantSchemaConfig(AppConfig):
     name = 'tenant_schemas'
+
 
 
 @register('config')
@@ -100,5 +101,9 @@ def best_practice(app_configs, **kwargs):
                  "'tenant_schemas.storage.TenantFileSystemStorage'",
             id="tenant_schemas.W003"
         ))
+
+    if has_multiple_db() and read_router_not_implemented()
+
+
 
     return errors
