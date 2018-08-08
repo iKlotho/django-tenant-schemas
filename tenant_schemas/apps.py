@@ -3,7 +3,9 @@ from django.conf import settings
 from django.core.checks import Critical, Error, Warning, register
 from django.core.files.storage import default_storage
 from tenant_schemas.storage import TenantStorageMixin
-from tenant_schemas.utils import get_public_schema_name, get_tenant_model,has_multiple_db
+from tenant_schemas.utils import get_public_schema_name, get_tenant_model, \
+                has_multiple_db, db_read_router_implemented, db_write_router_implemented
+
 
 
 class TenantSchemaConfig(AppConfig):
@@ -100,6 +102,20 @@ def best_practice(app_configs, **kwargs):
             hint="Set settings.DEFAULT_FILE_STORAGE to "
                  "'tenant_schemas.storage.TenantFileSystemStorage'",
             id="tenant_schemas.W003"
+        ))
+
+    if has_multiple_db() and not db_read_router_implemented():
+        errors.append(Error(
+            "You have specified multiple databases DB read method is not implemented in any DATABASE_ROUTER.",
+            hint="Create a Router and implement db_for_read method",
+            id="tenant_schemas.E004"
+        ))
+
+    if has_multiple_db() and not db_write_router_implemented():
+        errors.append(Error(
+            "You have specified multiple databases DB write method is not implemented in any DATABASE_ROUTER.",
+            hint="Create a Router and implement db_for_write method",
+            id="tenant_schemas.E005"
         ))
 
 

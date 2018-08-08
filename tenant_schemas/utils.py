@@ -12,6 +12,7 @@ except ImportError:
 from django.core import mail
 
 
+
 class MultipleDBError(Exception):
     """Raised when muliple DB's are defined in settings but not specified in usage"""
     pass    

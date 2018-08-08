@@ -3,10 +3,10 @@ import django
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import DisallowedHost
-from django.db import connection
+from django.db import connection, router
 from django.http import Http404
 from tenant_schemas.utils import (get_tenant_model, remove_www,
-                                  get_public_schema_name)
+                                  get_public_schema_name, has_multiple_db)
 
 if django.VERSION >= (1, 10, 0):
     MIDDLEWARE_MIXIN = django.utils.deprecation.MiddlewareMixin
@@ -43,7 +43,10 @@ class BaseTenantMiddleware(MIDDLEWARE_MIXIN):
     def process_request(self, request):
         # Connection needs first to be at the public schema, as this is where
         # the tenant metadata is stored.
+        db = router.db_for_read(None)
+        connections[db].set_schema_to_public()
         connection.set_schema_to_public()
+
 
         hostname = self.hostname_from_request(request)
         TenantModel = get_tenant_model()
@@ -60,6 +63,7 @@ class BaseTenantMiddleware(MIDDLEWARE_MIXIN):
                 'Invalid tenant {!r}'.format(request.tenant))
 
         request.tenant = tenant
+        connections[db].set_tenant(request.tenant)
         connection.set_tenant(request.tenant)
 
         # Do we have a public-specific urlconf?
