@@ -3,10 +3,10 @@ import django
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import DisallowedHost
-from django.db import connection, router
+from django.db import connection
 from django.http import Http404
 from tenant_schemas.utils import (get_tenant_model, remove_www,
-                                  get_public_schema_name, has_multiple_db)
+                                  get_public_schema_name)
 
 if django.VERSION >= (1, 10, 0):
     MIDDLEWARE_MIXIN = django.utils.deprecation.MiddlewareMixin
@@ -17,7 +17,6 @@ else:
 These middlewares should be placed at the very top of the middleware stack.
 Selects the proper database schema using request information. Can fail in
 various ways which is better than corrupting or revealing data.
-
 Extend BaseTenantMiddleware for a custom tenant selection strategy,
 such as inspecting the header, or extracting it from some OAuth token.
 """
@@ -43,10 +42,7 @@ class BaseTenantMiddleware(MIDDLEWARE_MIXIN):
     def process_request(self, request):
         # Connection needs first to be at the public schema, as this is where
         # the tenant metadata is stored.
-        db = router.db_for_read(None)
-        connections[db].set_schema_to_public()
         connection.set_schema_to_public()
-
 
         hostname = self.hostname_from_request(request)
         TenantModel = get_tenant_model()
@@ -63,7 +59,6 @@ class BaseTenantMiddleware(MIDDLEWARE_MIXIN):
                 'Invalid tenant {!r}'.format(request.tenant))
 
         request.tenant = tenant
-        connections[db].set_tenant(request.tenant)
         connection.set_tenant(request.tenant)
 
         # Do we have a public-specific urlconf?
@@ -85,7 +80,6 @@ class SuspiciousTenantMiddleware(TenantMiddleware):
     ``ALLOWED_HOSTS`` to allow ANY domain_url to be used because your tenants
     can bring any custom domain with them, as opposed to all tenants being a
     subdomain of a common base.
-
     See https://github.com/bernardopires/django-tenant-schemas/pull/269 for
     discussion on this middleware.
     """
@@ -97,10 +91,8 @@ class DefaultTenantMiddleware(SuspiciousTenantMiddleware):
     Extend the SuspiciousTenantMiddleware in scenario where you want to
     configure a tenant to be served if the hostname does not match any of the
     existing tenants.
-
     Subclass and override DEFAULT_SCHEMA_NAME to use a schema other than the
     public schema.
-
         class MyTenantMiddleware(DefaultTenantMiddleware):
             DEFAULT_SCHEMA_NAME = 'default'
     """

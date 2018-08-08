@@ -3,5 +3,5 @@ from tenant_tutorial.views import HomeView
 
 
 urlpatterns = [
-    url(r'^$', HomeView.as_view()),
+     url(r'^(?P<db>\w+)/$', HomeView.as_view()),
 ]

@@ -16,15 +16,7 @@ DATABASES = {
         'ENGINE': 'tenant_schemas.postgresql_backend',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'tenant_tutorial',                      # Or path to database file if using sqlite3.
         'USER': 'myprojectuser',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',   # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',            # Set to empty string for default.
-    },
-    'default1': {
-        'ENGINE': 'tenant_schemas.postgresql_backend',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'tenant_tutorial2',                      # Or path to database file if using sqlite3.
-        'USER': 'myprojectuser',
-        'PASSWORD': 'password',
+        'PASSWORD': 'password1',
         'HOST': 'localhost',   # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',            # Set to empty string for default.
     }
@@ -96,7 +88,6 @@ SECRET_KEY = 'as-%*_93v=r5*p_7cu8-%o6b&x^g+q$#*e*fl)k)x0-t=%q0qa'
 
 DATABASE_ROUTERS = (
     'tenant_schemas.routers.TenantSyncRouter',
-    'tenant_tutorial.routers.ExampleTenantSyncRouter'
 )
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'

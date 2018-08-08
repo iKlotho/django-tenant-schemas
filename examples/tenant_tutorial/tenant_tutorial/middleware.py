@@ -1,17 +1,14 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import connection, connections
+from django.db import connection
 from django.http import Http404
-from tenant_schemas.utils import get_tenant_model, remove_www_and_dev, get_public_schema_name, has_multiple_db
-from django.db import utils, router
+from tenant_schemas.utils import get_tenant_model, remove_www_and_dev, get_public_schema_name
+from django.db import utils
 
 
 class TenantTutorialMiddleware(object):
     def process_request(self, request):
-        db = router.db_for_read(None)
-        connections[db].set_schema_to_public()
         connection.set_schema_to_public()
-        
         hostname_without_port = remove_www_and_dev(request.get_host().split(':')[0])
 
         TenantModel = get_tenant_model()
@@ -28,9 +25,7 @@ class TenantTutorialMiddleware(object):
             else:
                 raise Http404
 
-        connections[db].set_tenant(request.tenant)
         connection.set_tenant(request.tenant)
-        
         ContentType.objects.clear_cache()
 
         if hasattr(settings, 'PUBLIC_SCHEMA_URLCONF') and request.tenant.schema_name == get_public_schema_name():
