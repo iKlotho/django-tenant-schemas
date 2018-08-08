@@ -53,7 +53,7 @@ class MultiDBTenantMiddleware(TenantMiddleware):
                 'Invalid tenant {!r}'.format(request.tenant))
 
         request.tenant = tenant
-        connection.set_tenant(request.tenant)
+        connections[db].set_tenant(request.tenant)
 
         # Do we have a public-specific urlconf?
         if hasattr(settings, 'PUBLIC_SCHEMA_URLCONF') and request.tenant.schema_name == get_public_schema_name():
