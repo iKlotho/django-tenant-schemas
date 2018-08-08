@@ -105,20 +105,5 @@ def best_practice(app_configs, **kwargs):
             id="tenant_schemas.W003"
         ))
 
-    if has_multiple_db() and not db_router_implemented('db_for_read'):
-        errors.append(Error(
-            "You have specified multiple databases but DB read method is not implemented in any DATABASE_ROUTER.",
-            hint="Create a Router and implement db_for_read method",
-            id="tenant_schemas.E004"
-        ))
-
-    if has_multiple_db() and not db_router_implemented('db_for_write'):
-        errors.append(Error(
-            "You have specified multiple databases but DB write method is not implemented in any DATABASE_ROUTER.",
-            hint="Create a Router and implement db_for_write method",
-            id="tenant_schemas.E005"
-        ))
-
-
 
     return errors
