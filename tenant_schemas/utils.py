@@ -2,6 +2,7 @@ from contextlib import contextmanager
 
 from django.conf import settings
 from django.db import connection, connections
+from django.utils.module_loading import import_string
 
 try:
     from django.apps import apps, AppConfig
@@ -32,7 +33,7 @@ def db_read_router_implemented():
     checks if read router is implemented
     """
     for router in settings.DATABASE_ROUTERS:
-        if hasattr(router, 'db_for_read'):
+        if hasattr(import_module(router), 'db_for_read'):
             return True
         return False
 
@@ -42,7 +43,7 @@ def db_write_router_implemented():
     checks if read router is implemented
     """
     for router in settings.DATABASE_ROUTERS:
-        if hasattr(router, 'db_for_write'):
+        if hasattr(import_module(router), 'db_for_write'):
             return True
         return False
 
