@@ -28,19 +28,6 @@ def has_multiple_db():
     return False
 
 
-def db_router_implemented(router_type):
-    """
-    checks if read router is implemented
-    """
-    if router_type  not in ['db_for_read', 'db_for_write']:
-        raise ValueError("router_type must be db_for_read or db_for_write")
-    result = False
-    for router in settings.DATABASE_ROUTERS:
-        if hasattr(import_string(router), router_type):
-            result = result or True
-    return result
-
-
 
 
 @contextmanager

@@ -1,8 +1,14 @@
-from .middleware import TenantMiddleware
+import threading
+
 from django.conf import settings 
 from django.http import Http404
-import threading
 from django.db import connections
+from django.db import router
+
+from tenant_schemas.utils import get_tenant_model, get_public_schema_name
+
+from .middleware import TenantMiddleware
+
 
 
 request_cfg = threading.local()
@@ -23,17 +29,35 @@ class MultiDBTenantMiddleware(TenantMiddleware):
         db = request.get_full_path().split('/')[1]
         if not settings.DATABASES.get(db):
             raise Http404
-        return 
+        return db
 
 
     def process_request(self, request, *args, **kwargs):
 
-        super(MultiDBTenantMiddleware, self).process_request(
-                                                request, *args, **kwargs)
         db = self.get_database(request)
         connections[db].set_schema_to_public()
-        connections[db].set_tenant(request.tenant)
+        
         request_cfg.db = db
+        hostname = self.hostname_from_request(request)
+        TenantModel = get_tenant_model()
+
+        try:
+            # get_tenant must be implemented by extending this class.
+            tenant = self.get_tenant(TenantModel, hostname, request)            
+            assert isinstance(tenant, TenantModel)
+        except TenantModel.DoesNotExist:
+            raise self.TENANT_NOT_FOUND_EXCEPTION(
+                'No tenant for {!r}'.format(request.get_host()))
+        except AssertionError:
+            raise self.TENANT_NOT_FOUND_EXCEPTION(
+                'Invalid tenant {!r}'.format(request.tenant))
+
+        request.tenant = tenant
+        connection.set_tenant(request.tenant)
+
+        # Do we have a public-specific urlconf?
+        if hasattr(settings, 'PUBLIC_SCHEMA_URLCONF') and request.tenant.schema_name == get_public_schema_name():
+            request.urlconf = settings.PUBLIC_SCHEMA_URLCONF
 
 
     def process_response( self, request, response ):
@@ -49,13 +73,13 @@ class MultiDBRouter:
     depending if we are syncing the shared apps or the tenant apps.
     """
 
-    def db_for_read(self, model, **hints): 
-        if hasattr(request_cfg, 'db'):
-            return request_cfg.cfg
+    def db_for_read(self, model, **hints):
+        if hasattr(request_cfg, 'db'):            
+            return request_cfg.db
         return None
 
 
     def db_for_write(self, model, **hints):
         if hasattr(request_cfg, 'db'):
-            return request_cfg.cfg
+            return request_cfg.db
         return None
