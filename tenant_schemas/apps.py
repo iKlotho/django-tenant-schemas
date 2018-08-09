@@ -1,17 +1,13 @@
 from django.apps import AppConfig, apps
-from django.db import router
 from django.conf import settings
 from django.core.checks import Critical, Error, Warning, register
 from django.core.files.storage import default_storage
 from tenant_schemas.storage import TenantStorageMixin
-from tenant_schemas.utils import get_public_schema_name, get_tenant_model, \
-                has_multiple_db
-
+from tenant_schemas.utils import get_public_schema_name, get_tenant_model
 
 
 class TenantSchemaConfig(AppConfig):
     name = 'tenant_schemas'
-
 
 
 @register('config')

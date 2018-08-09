@@ -12,10 +12,7 @@ def run_migrations(args, options, executor_codename, schema_name, allow_atomic=T
     from django.core.management.base import OutputWrapper
     from django.db import connection, connections
 
-    style = color.color_style()
-    db = options.get('db', None) or options.get('database', None)
-    if db:
-        connection = connections[db]
+    style = color.color_style() 
 
     def style_func(msg):
         return '[%s:%s] %s' % (
@@ -28,6 +25,11 @@ def run_migrations(args, options, executor_codename, schema_name, allow_atomic=T
     stdout.style_func = style_func
     stderr = OutputWrapper(sys.stderr)
     stderr.style_func = style_func
+    
+    db = options.get('db', None) or options.get('database', None)
+    if db:
+        connection = connections[db]
+
     if int(options.get('verbosity', 1)) >= 1:
         if db:
             stdout.write(style.NOTICE("=== Running migrate for schema %s and database %s" % (schema_name, db)))

@@ -1,8 +1,7 @@
 from contextlib import contextmanager
 
 from django.conf import settings
-from django.db import connection, connections
-from django.utils.module_loading import import_string
+from django.db import connection, connections, router
 
 try:
     from django.apps import apps, AppConfig
@@ -12,20 +11,6 @@ except ImportError:
     AppConfig = None
 from django.core import mail
 
-
-
-class MultipleDBError(Exception):
-    """Raised when muliple DB's are defined in settings but not specified in usage"""
-    pass    
-
-
-def has_multiple_db():
-    """
-    checks if multile databases are defined in settings
-    """
-    if len(settings.DATABASES) > 1:
-        return True
-    return False
 
 
 
@@ -153,3 +138,16 @@ def app_labels(apps_list):
     return [AppConfig.create(app).label for app in apps_list]
 
 
+class MultipleDBError(Exception):
+    """Raised when muliple DB's are defined in settings but not 
+    specified in usage"""
+    pass    
+
+
+def has_multiple_db():
+    """
+    checks if multile databases are defined in settings
+    """
+    if len(settings.DATABASES) > 1:
+        return True
+    return False

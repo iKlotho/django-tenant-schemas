@@ -1,16 +1,15 @@
-from django.db import connection, connections
+from django.db import connections, router
 
 
-def make_key(key, key_prefix, version, db=None):
+def make_key(key, key_prefix, version):
     """
     Tenant aware function to generate a cache key.
 
     Constructs the key used by all other methods. Prepends the tenant
     `schema_name` and `key_prefix'.
     """
-    from django.db import connection, connections
-    if db:
-        connection = connections[db]
+    db = router.db_for_read
+    connection = connections[db]
     return '%s:%s:%s:%s' % (connection.schema_name, key_prefix, version, key)
 
 
