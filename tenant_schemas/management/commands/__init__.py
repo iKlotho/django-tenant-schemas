@@ -153,6 +153,7 @@ class SyncCommon(BaseCommand):
                             help='Executor for running migrations [standard (default)|parallel]')
 
     def handle(self, *args, **options):
+        print options
         self.sync_tenant = options.get('tenant')
         self.sync_public = options.get('shared')
         self.schema_name = options.get('schema_name')

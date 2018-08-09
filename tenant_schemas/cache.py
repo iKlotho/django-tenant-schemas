@@ -8,7 +8,7 @@ def make_key(key, key_prefix, version):
     Constructs the key used by all other methods. Prepends the tenant
     `schema_name` and `key_prefix'.
     """
-    db = router.db_for_read
+    db = router.db_for_read(None)
     connection = connections[db]
     return '%s:%s:%s:%s' % (connection.schema_name, key_prefix, version, key)
 

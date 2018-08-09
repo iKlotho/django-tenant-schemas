@@ -5,5 +5,6 @@ class StandardExecutor(MigrationExecutor):
     codename = 'standard'
 
     def run_tenant_migrations(self, tenants):
+    	print tenants
         for schema_name in tenants:
             run_migrations(self.args, self.options, self.codename, schema_name)

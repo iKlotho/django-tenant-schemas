@@ -38,6 +38,7 @@ class Command(SyncCommon):
             self.schema_name = self.PUBLIC_SCHEMA_NAME
         if self.sync_public:
             executor.run_migrations(tenants=[self.schema_name])
+        print 'self.sync_tenant', self.sync_tenant, self.schema_name
         if self.sync_tenant:
             if self.schema_name and self.schema_name != self.PUBLIC_SCHEMA_NAME:
                 if not schema_exists(self.schema_name, db=db):
@@ -46,6 +47,7 @@ class Command(SyncCommon):
                 else:
                     tenants = [self.schema_name]
             else:
-                tenants = get_tenant_model().objects.exclude(schema_name=get_public_schema_name()).values_list(
+                tenants = get_tenant_model().objects.using(db).exclude(schema_name=get_public_schema_name()).values_list(
                     'schema_name', flat=True)
+            print 'tenants', tenants
             executor.run_migrations(tenants=tenants)

@@ -23,8 +23,9 @@ class MultiDBTenantMiddleware(TenantMiddleware):
     def get_database(self, request):
         """
         The get_database method is implemented for URL pattern  
-        '^(?P<db>\w+)/$' For any other pattern, custom implementation of this
-        method must be done.  
+        '^(?P<db>\w+)/$' 
+        For any other pattern, custom implementation of this
+        method may be done.  
         """
         db = request.get_full_path().split('/')[1]
         if not settings.DATABASES.get(db):
@@ -40,7 +41,6 @@ class MultiDBTenantMiddleware(TenantMiddleware):
         request_cfg.db = db
         hostname = self.hostname_from_request(request)
         TenantModel = get_tenant_model()
-
         try:
             # get_tenant must be implemented by extending this class.
             tenant = self.get_tenant(TenantModel, hostname, request)            
