@@ -1,13 +1,15 @@
 from django.contrib.auth.models import User
 from django.db.utils import DatabaseError
 from django.views.generic import FormView
-from customers.forms import GenerateUsersForm
+from customers.forms import GenerateUsersForm, ClientForm
 from customers.models import Client
 from random import choice
 
+from new_app.forms import CustomForm
+
 
 class TenantView(FormView):
-    form_class = GenerateUsersForm
+    form_class = ClientForm #CustomForm
     template_name = "index_tenant.html"
     success_url = "/"
 
@@ -18,6 +20,7 @@ class TenantView(FormView):
         return context
 
     def form_valid(self, form):
+        form.save()
         User.objects.all().delete()  # clean current users
 
         # generate five random users

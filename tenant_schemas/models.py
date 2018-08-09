@@ -1,10 +1,11 @@
 from django.core.management import call_command
 from django.db import connection, connections, models
-from django.conf import settings
 
 from tenant_schemas.postgresql_backend.base import _check_schema_name
 from tenant_schemas.signals import post_schema_sync
-from tenant_schemas.utils import get_public_schema_name, schema_exists, MultipleDBError, has_multiple_db
+from tenant_schemas.utils import (get_public_schema_name, schema_exists, 
+                                MultipleDBError, has_multiple_db)
+
 
 
 class TenantQueryset(models.QuerySet):
@@ -55,17 +56,27 @@ class TenantMixin(models.Model):
         abstract = True
 
     def get_db(self, **kwargs):
+        """
+        If single db, return default
+        If multiple_db and db specified in 'using' kwarg, return db
+        If request_cfg set through multidb router, return set db        
+        """
+        if not has_multiple_db():
+            return 'default'
         db = kwargs.get('using', None)
-        if has_multiple_db() and not db:
-            raise MultipleDBError("DB not specified")
         if db:
             return db
-        return None
+        from .multidb import request_cfg
+        if hasattr(request_cfg, 'db'):
+            return request_cfg.db
+        raise MultipleDBError("DB not specified")
 
 
     def save(self, verbosity=1, *args, **kwargs):
+
         is_new = self.pk is None
         db = self.get_db(**kwargs)
+        
         from django.db import connection
         if db:
             connection = connections[db]
